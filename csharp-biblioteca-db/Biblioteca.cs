@@ -10,8 +10,6 @@ namespace csharp_biblioteca_db
     {
         public string Nome { get; set; }
         public List<Scaffale> ScaffaleBiblioteca { get; set; }
-        
-
   
 
 
@@ -22,14 +20,27 @@ namespace csharp_biblioteca_db
     public Biblioteca(string Nome)
         {
             this.Nome = Nome;
-            this.ScaffaleBiblioteca = new List<Scaffale>();   
+            this.ScaffaleBiblioteca = new List<Scaffale>();
+
+            //recupera elenco scaffali
+            List<string> elencoScaffali = db.scaffaliGet();
+            elencoScaffali.ForEach(item => {
+                AggiungiScaffale(item, false);
+                //Scaffale nuovo = new Scaffale(item);
+                //this.ScaffaleBiblioteca.Add(nuovo);
+
+            });
         }
 
 
-        public void AggiungiScaffale(string sNomeScaffale)
+        public void AggiungiScaffale(string sNomeScaffale,bool addToDb=true)
         {
-            Scaffale s1 = new Scaffale(sNomeScaffale);
-            ScaffaleBiblioteca.Add(s1);
+            Scaffale nuovo = new Scaffale(sNomeScaffale);
+            ScaffaleBiblioteca.Add(nuovo);
+            //salvo nel db
+            db.scaffaleAdd(nuovo.Numero);
+            if (addToDb)
+                db.scaffaleAdd(nuovo.Numero);
         }
 
         public int GestisciOperazioneBiblioteca(int iCodiceOperazione)
