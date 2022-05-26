@@ -29,33 +29,89 @@ namespace csharp_biblioteca_db
         }
 
         //il libro inserisce sia in Doc
-        internal static void libroAdd(Libro libro)
+        internal static int libroAdd(Libro libro, List<Autore> lAutori)
         {
-            //collegarmi e inviare un comando di insert del nuovo scaffale
+            //devo collegarmi e inviare un comando di insert del nuovo scaffale
             var conn = Connect();
             if (conn == null)
             {
-                throw new Exception("Unable to connect to database");
+                throw new System.Exception("Unable to connect to database");
             }
-            ////"insert into Scaffale (Scaffale) valuer('aaa')"
-            //var cmd = String.Format("insert into Libro (Scaffale) values ('{0}')", nuovo);
-            //using (SqlCommand insert = new SqlCommand(cmd, conn))
-            //{
-            //    try
-            //    {
-            //        var numrows = insert.ExecuteNonQuery();
-            //        return numrows;
-            //    }
-            //    catch (Exception ex)
-            //    {
-            //        Console.WriteLine(ex.Message);
-            //        return 0;
-            //    }
-            //    finally
-            //    {
-            //        conn.Close();
-            //    }
-            //}
+            var cmd = string.Format(@"insert into dbo.DOCUMENTI(codice, Titolo, Settore, Stato, Tipo, Scaffale)
+      VALUES({0}, '{1}', '{2}', '{3}', 'LIBRO', '{4}')", libro.Codice,libro.Titolo,libro.Settore,libro.Stato.ToString(),libro.Scaffale.Numero);
+            using (SqlCommand insert = new SqlCommand(cmd, conn))
+            {
+                try
+                {
+                    var numrows = insert.ExecuteNonQuery();
+                    if (numrows != 1)
+                        throw new System.Exception("Valore di ritorno errato prima query");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    conn.Close();
+                    return 0;
+                }
+            }
+            var cmd1 = string.Format(@"insert into dbo.Libro(Codice, Numero_pag) VALUES({0},{1})",libro.Codice,libro.NumeroPagine);
+            using (SqlCommand insert = new SqlCommand(cmd1, conn))
+            {
+                try
+                {
+                    var numrows = insert.ExecuteNonQuery();
+                    if (numrows != 1)
+                        throw new System.Exception("Valore di ritorno errato seconda query");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    conn.Close();
+                    return 0;
+                }
+            }
+            string cmd2;
+            foreach (Autore autore in lAutori)
+            {
+                cmd2 = string.Format(@"INSERT INTO AUTORI(Codice ,Nome, Cognome, mail) values({0},'{1}','{2}','{3}') ",autore.iCodiceAutore, autore.Nome, autore.Cognome, autore.sMail);
+                using (SqlCommand insert = new SqlCommand(cmd2, conn))
+                {
+                    try
+                    {
+                        var numrows = insert.ExecuteNonQuery();
+                        if (numrows != 1)
+                            throw new System.Exception("Valore di ritorno errato terza query");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                        conn.Close();
+                        return 0;
+                    }
+                }
+            }
+            string cmd3;
+            foreach (Autore autore in lAutori)
+            {
+                cmd3 = string.Format(@"INSERT INTO AUTORI_DOCUMENTI(codice_autore, codice_documento) values({0},{1})", autore.iCodiceAutore, libro.Codice);
+                using (SqlCommand insert = new SqlCommand(cmd3, conn))
+                {
+                    try
+                    {
+                        var numrows = insert.ExecuteNonQuery();
+                        if (numrows != 1)
+                            throw new System.Exception("Valore di ritorno errato seconda query");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                        conn.Close();
+                        return 0;
+                    }
+                }
+            }
+            conn.Close();
+            return 0;
         }
 
         internal static int scaffaleAdd(string nuovo)
