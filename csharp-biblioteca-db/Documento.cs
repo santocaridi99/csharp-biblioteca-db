@@ -8,7 +8,7 @@ namespace csharp_biblioteca_db
 {
     public class Documento
     {
-        public int Codice { get; set; }
+        public long Codice { get; set; }
         public string Titolo { get; set; }
         public int Anno { get; set; }
         public string Settore { get; set; }
@@ -16,7 +16,7 @@ namespace csharp_biblioteca_db
         public List<Autore> Autori { get; set; }
         public Scaffale Scaffale { get; set; }
 
-        public Documento(int Codice, string Titolo, int Anno, string Settore ,string nomeScaffale)
+        public Documento(long Codice, string Titolo, int Anno, string Settore ,string nomeScaffale)
         {
             this.Codice = Codice;
             this.Titolo = Titolo;

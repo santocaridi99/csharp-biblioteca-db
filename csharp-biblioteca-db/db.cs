@@ -28,6 +28,65 @@ namespace csharp_biblioteca_db
             
         }
 
+        internal static long GetUniqueId()
+        {
+            var conn = Connect();
+            if (conn == null)
+                throw new Exception("Unable to connect to the dabatase");
+            string cmd = "UPDATE codiceunico SET codice = codice + 1 OUTPUT INSERTED.codice";
+            long id;
+            using (SqlCommand select = new SqlCommand(cmd, conn))
+            {
+                using (SqlDataReader reader = select.ExecuteReader())
+                {
+                    reader.Read();
+                    id = reader.GetInt64(0);
+                }
+            }
+            conn.Close();
+            return id;
+        }
+
+
+        internal static bool doSql(SqlConnection conn,string sql)
+        {
+            using (SqlCommand sqlCmd = new SqlCommand(sql, conn))
+            {
+                try
+                {
+                   sqlCmd.ExecuteNonQuery();
+                   return true;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    conn.Close();
+                    return false;
+                }
+            }
+
+        }
+
+        //metodo : implementare una select che selezioni tutti i libri e gli autori
+        //usando un join
+
+        //internal static List<List<string>> getLibriAutori()
+        //{
+        //    var conn = Connect();
+        //    if(conn == null)
+        //    {
+        //        throw new Exception("Unable to connect to the database");
+        //    }
+        //    var cmd = String.Format(@"sekect * from DOCUMENTI inner join Libro on DOCUMENTI.codice = libro.codice
+        //    inner join AUTORI_DOCUMENTI on DOCUMENTI.codice = AUTORI_DOCUMENTI.codice_documento
+        //    inner join AUTORI on AUTORI_DOCUMENTI.codice_autore = AUTORI.codice");
+
+
+        //} 
+
+        
+
+
         //il libro inserisce sia in Doc
         internal static int libroAdd(Libro libro, List<Autore> lAutori)
         {
@@ -37,6 +96,11 @@ namespace csharp_biblioteca_db
             {
                 throw new System.Exception("Unable to connect to database");
             }
+            var ok = doSql(conn, "begin transaction \n");
+            if (!ok)
+                throw new System.Exception("Errore in begin transaction");
+
+
             var cmd = string.Format(@"insert into dbo.DOCUMENTI(codice, Titolo, Settore, Stato, Tipo, Scaffale)
       VALUES({0}, '{1}', '{2}', '{3}', 'LIBRO', '{4}')", libro.Codice,libro.Titolo,libro.Settore,libro.Stato.ToString(),libro.Scaffale.Numero);
             using (SqlCommand insert = new SqlCommand(cmd, conn))
@@ -45,11 +109,16 @@ namespace csharp_biblioteca_db
                 {
                     var numrows = insert.ExecuteNonQuery();
                     if (numrows != 1)
+                    {
+                        conn.Close();
                         throw new System.Exception("Valore di ritorno errato prima query");
+                    }
+                        
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex.Message);
+                    doSql(conn, "rollback transaction");
                     conn.Close();
                     return 0;
                 }
@@ -61,11 +130,17 @@ namespace csharp_biblioteca_db
                 {
                     var numrows = insert.ExecuteNonQuery();
                     if (numrows != 1)
+                    {
+                        doSql(conn, "rollback transaction");
+                        conn.Close();
                         throw new System.Exception("Valore di ritorno errato seconda query");
+                    }
+                       
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex.Message);
+                    doSql(conn, "rollback transaction");
                     conn.Close();
                     return 0;
                 }
@@ -80,7 +155,12 @@ namespace csharp_biblioteca_db
                     {
                         var numrows = insert.ExecuteNonQuery();
                         if (numrows != 1)
-                            throw new System.Exception("Valore di ritorno errato terza query");
+                        {
+                            doSql(conn, "rollback transaction");
+                            conn.Close();
+                            throw new System.Exception("Valore di ritorno errato quarta query");
+                        }
+                           
                     }
                     catch (Exception ex)
                     {
@@ -93,23 +173,29 @@ namespace csharp_biblioteca_db
             string cmd3;
             foreach (Autore autore in lAutori)
             {
-                cmd3 = string.Format(@"INSERT INTO AUTORI_DOCUMENTI(codice_autore, codice_documento) values({0},{1})", autore.iCodiceAutore, libro.Codice);
+                cmd3 = string.Format(@"INSERT INTO AUTORI_DOCUMENTI(codice_autore, codice_documento) values('{0}','{1}')", autore.iCodiceAutore, libro.Codice);
                 using (SqlCommand insert = new SqlCommand(cmd3, conn))
                 {
                     try
                     {
                         var numrows = insert.ExecuteNonQuery();
-                        if (numrows != 1)
-                            throw new System.Exception("Valore di ritorno errato seconda query");
+                        if (numrows != 1) {
+                            doSql(conn, "rollback transaction");
+                            conn.Close();
+                            throw new System.Exception("Valore di ritorno errato quinta query");
+                        }
+                           
                     }
                     catch (Exception ex)
                     {
                         Console.WriteLine(ex.Message);
+                        doSql(conn, "rollback transaction");
                         conn.Close();
                         return 0;
                     }
                 }
             }
+            doSql(conn, "commit transaction");
             conn.Close();
             return 0;
         }

@@ -21,18 +21,42 @@ namespace csharp_biblioteca_db
 
             Biblioteca b = new Biblioteca("Civica");
 
-
-
-            List<Autore> lAutoriLibro = new List<Autore>();
-            Autore AutoreMioLibro = new Autore("Gianni", "Rivera", "gianni@gmail.com");
-            lAutoriLibro.Add(AutoreMioLibro);
-            b.AggiungiLibro(10002, "La grande cavalcata", 1960, "Avventura", 200, "SS2", lAutoriLibro);
-
-
-
             //b.AggiungiScaffale("SS1");
             //b.AggiungiScaffale("SS2");
             //b.AggiungiScaffale("SS3");
+
+            Console.WriteLine("Nuovo Libro");
+            Console.WriteLine("nome dell'autore");
+            string nomeAutore = Console.ReadLine();
+            Console.WriteLine("cognome autore");
+            string cognomeAutore = Console.ReadLine();
+            Console.WriteLine("mail");
+            string mailAutore = Console.ReadLine();
+
+            List<Autore> lAutoriLibro = new List<Autore>();
+            Autore AutoreMioLibro = new Autore(nomeAutore, cognomeAutore, mailAutore);
+            lAutoriLibro.Add(AutoreMioLibro);
+
+
+            Console.WriteLine("titolo del libro");
+            string titolo = Console.ReadLine();
+            Console.WriteLine("Inserisci il numero di pagine del libro");
+            int anno = Convert.ToInt32(Console.ReadLine());
+            Console.WriteLine("Inserisci la tipologia del libro");
+            string settore = Console.ReadLine();
+            Console.WriteLine("Inserisci il numero di pagine del libro");
+            int numeroPagine = Convert.ToInt32(Console.ReadLine());
+            Console.WriteLine("Scegli lo scaffale esempio: SS1,SS2,SS3");
+            string scaffale = Console.ReadLine();
+
+            
+            
+           
+            b.AggiungiLibro(db.GetUniqueId(),titolo ,anno ,settore ,numeroPagine , scaffale, lAutoriLibro);
+           
+
+
+
 
             b.ScaffaleBiblioteca.ForEach(item => Console.WriteLine(item.Numero));
 
