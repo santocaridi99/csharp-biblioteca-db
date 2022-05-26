@@ -40,7 +40,7 @@ namespace csharp_biblioteca_db
 
             Console.WriteLine("titolo del libro");
             string titolo = Console.ReadLine();
-            Console.WriteLine("Inserisci il numero di pagine del libro");
+            Console.WriteLine("Inserisci anno pubblicazione del  libro");
             int anno = Convert.ToInt32(Console.ReadLine());
             Console.WriteLine("Inserisci la tipologia del libro");
             string settore = Console.ReadLine();
