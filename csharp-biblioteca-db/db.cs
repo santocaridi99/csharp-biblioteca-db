@@ -100,7 +100,6 @@ namespace csharp_biblioteca_db
             if (!ok)
                 throw new System.Exception("Errore in begin transaction");
 
-
             var cmd = string.Format(@"insert into dbo.DOCUMENTI(codice, Titolo, Settore, Stato, Tipo, Scaffale)
       VALUES({0}, '{1}', '{2}', '{3}', 'LIBRO', '{4}')", libro.Codice,libro.Titolo,libro.Settore,libro.Stato.ToString(),libro.Scaffale.Numero);
             using (SqlCommand insert = new SqlCommand(cmd, conn))
@@ -145,11 +144,60 @@ namespace csharp_biblioteca_db
                     return 0;
                 }
             }
-            string cmd2;
+
+            string cmdAutori;
             foreach (Autore autore in lAutori)
             {
-                cmd2 = string.Format(@"INSERT INTO AUTORI(Codice ,Nome, Cognome, mail) values({0},'{1}','{2}','{3}') ",autore.iCodiceAutore, autore.Nome, autore.Cognome, autore.sMail);
-                using (SqlCommand insert = new SqlCommand(cmd2, conn))
+                long lCodiceAutore = 0;
+                int iInsertFlag = 0;
+                cmdAutori = String.Format("select codice from Autori where Nome='{0}' and Cognome='{1}' and mail='{2}'", autore.Nome, autore.Cognome, autore.sMail);
+                using (SqlCommand select = new SqlCommand(cmdAutori, conn))
+                {
+                    using (SqlDataReader reader = select.ExecuteReader())
+                    {
+                        Console.WriteLine(reader.FieldCount);
+                        if (reader.Read())
+                        {
+                            lCodiceAutore = reader.GetInt64(0);
+                        }
+                        else
+                        {
+                            lCodiceAutore = autore.iCodiceAutore;
+                            iInsertFlag = 1;
+
+                        }
+                        reader.Close();
+
+                    }
+
+                }
+                if(iInsertFlag == 1)
+                {
+                    string cmd4 = String.Format("INSERT INTO AUTORI (codice,Nome,Cognome,mail) values({0},'{1}','{2}','{3}')",lCodiceAutore, autore.Nome, autore.Cognome, autore.sMail); ;
+                    using (SqlCommand insert = new SqlCommand(cmd4, conn))
+                    {
+                        try
+                        {
+                            var numrows = insert.ExecuteNonQuery();
+                            if (numrows != 1)
+                            {
+                                doSql(conn, "rollback transaction");
+                                conn.Close();
+                                throw new System.Exception("Valore di ritorno errato seconda query");
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine(ex.Message);
+                            doSql(conn, "rollback transaction");
+                            conn.Close();
+                            return 0;
+                        }
+                    }
+
+                }
+                string cmd3 = string.Format(@"INSERT INTO AUTORI_DOCUMENTI(codice_autore, codice_documento) values({0},{1})", lCodiceAutore, libro.Codice);
+                using (SqlCommand insert = new SqlCommand(cmd3, conn))
                 {
                     try
                     {
@@ -158,33 +206,8 @@ namespace csharp_biblioteca_db
                         {
                             doSql(conn, "rollback transaction");
                             conn.Close();
-                            throw new System.Exception("Valore di ritorno errato quarta query");
+                            throw new System.Exception("Valore di ritorno errato seconda query");
                         }
-                           
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine(ex.Message);
-                        conn.Close();
-                        return 0;
-                    }
-                }
-            }
-            string cmd3;
-            foreach (Autore autore in lAutori)
-            {
-                cmd3 = string.Format(@"INSERT INTO AUTORI_DOCUMENTI(codice_autore, codice_documento) values('{0}','{1}')", autore.iCodiceAutore, libro.Codice);
-                using (SqlCommand insert = new SqlCommand(cmd3, conn))
-                {
-                    try
-                    {
-                        var numrows = insert.ExecuteNonQuery();
-                        if (numrows != 1) {
-                            doSql(conn, "rollback transaction");
-                            conn.Close();
-                            throw new System.Exception("Valore di ritorno errato quinta query");
-                        }
-                           
                     }
                     catch (Exception ex)
                     {
@@ -195,6 +218,7 @@ namespace csharp_biblioteca_db
                     }
                 }
             }
+
             doSql(conn, "commit transaction");
             conn.Close();
             return 0;
@@ -281,5 +305,168 @@ namespace csharp_biblioteca_db
             conn.Close();
             return ld;
         }
+
+        internal static int dvdAdd(DVD dvd, List<Autore> lAutori)
+        {
+            //devo collegarmi e inviare un comando di insert del nuovo scaffale
+            var conn = Connect();
+            if (conn == null)
+            {
+                throw new System.Exception("Unable to connect to database");
+            }
+            var ok = doSql(conn, "begin transaction \n");
+            if (!ok)
+                throw new System.Exception("Errore in begin transaction");
+
+            var cmd = string.Format(@"insert into dbo.DOCUMENTI(codice, Titolo, Settore, Stato, Tipo, Scaffale)
+      VALUES({0}, '{1}', '{2}', '{3}', 'DVD', '{4}')", dvd.Codice, dvd.Titolo, dvd.Settore, dvd.Stato.ToString(), dvd.Scaffale.Numero);
+            using (SqlCommand insert = new SqlCommand(cmd, conn))
+            {
+                try
+                {
+                    var numrows = insert.ExecuteNonQuery();
+                    if (numrows != 1)
+                    {
+                        conn.Close();
+                        throw new System.Exception("Valore di ritorno errato prima query");
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    doSql(conn, "rollback transaction");
+                    conn.Close();
+                    return 0;
+                }
+            }
+            var cmd1 = string.Format(@"insert into dbo.DVD(codice, Durata) VALUES({0},{1})", dvd.Codice, dvd.Durata);
+            using (SqlCommand insert = new SqlCommand(cmd1, conn))
+            {
+                try
+                {
+                    var numrows = insert.ExecuteNonQuery();
+                    if (numrows != 1)
+                    {
+                        doSql(conn, "rollback transaction");
+                        conn.Close();
+                        throw new System.Exception("Valore di ritorno errato seconda query");
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    doSql(conn, "rollback transaction");
+                    conn.Close();
+                    return 0;
+                }
+            }
+
+            string cmdAutori;
+            foreach (Autore autore in lAutori)
+            {
+                long lCodiceAutore = 0;
+                int iInsertFlag = 0;
+                cmdAutori = String.Format("select codice from Autori where Nome='{0}' and Cognome='{1}' and mail='{2}'", autore.Nome, autore.Cognome, autore.sMail);
+                using (SqlCommand select = new SqlCommand(cmdAutori, conn))
+                {
+                    using (SqlDataReader reader = select.ExecuteReader())
+                    {
+                        Console.WriteLine(reader.FieldCount);
+                        if (reader.Read())
+                        {
+                            lCodiceAutore = reader.GetInt64(0);
+                        }
+                        else
+                        {
+                            lCodiceAutore = autore.iCodiceAutore;
+                            iInsertFlag = 1;
+
+                        }
+                        reader.Close();
+
+                    }
+
+                }
+                if (iInsertFlag == 1)
+                {
+                    string cmd4 = String.Format("INSERT INTO AUTORI (codice,Nome,Cognome,mail) values({0},'{1}','{2}','{3}')", lCodiceAutore, autore.Nome, autore.Cognome, autore.sMail); ;
+                    using (SqlCommand insert = new SqlCommand(cmd4, conn))
+                    {
+                        try
+                        {
+                            var numrows = insert.ExecuteNonQuery();
+                            if (numrows != 1)
+                            {
+                                doSql(conn, "rollback transaction");
+                                conn.Close();
+                                throw new System.Exception("Valore di ritorno errato seconda query");
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine(ex.Message);
+                            doSql(conn, "rollback transaction");
+                            conn.Close();
+                            return 0;
+                        }
+                    }
+
+                }
+                string cmd3 = string.Format(@"INSERT INTO AUTORI_DOCUMENTI(codice_autore, codice_documento) values({0},{1})", lCodiceAutore, dvd.Codice);
+                using (SqlCommand insert = new SqlCommand(cmd3, conn))
+                {
+                    try
+                    {
+                        var numrows = insert.ExecuteNonQuery();
+                        if (numrows != 1)
+                        {
+                            doSql(conn, "rollback transaction");
+                            conn.Close();
+                            throw new System.Exception("Valore di ritorno errato seconda query");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                        doSql(conn, "rollback transaction");
+                        conn.Close();
+                        return 0;
+                    }
+                }
+            }
+
+            doSql(conn, "commit transaction");
+            conn.Close();
+            return 0;
+        }
+
+
+        //internal static void SearchByAutore(string search)
+        //{
+        //    //devo collegarmi e inviare un comando di insert del nuovo scaffale
+        //    var conn = Connect();
+        //    if (conn == null)
+        //    {
+        //        throw new System.Exception("Unable to connect to database");
+        //    }
+        //    var ok = doSql(conn, "begin transaction \n");
+        //    if (!ok)
+        //        throw new System.Exception("Errore in begin transaction");
+
+        //    var cmd = String.Format("select nome,cognome,mail from Autori where Nome like '{0}'",search);
+        //    using (SqlCommand select = new SqlCommand(cmd, conn))
+        //    {
+        //        using (SqlDataReader reader = select.ExecuteReader())
+        //        {
+        //            var readerSearch = select.ExecuteReader();
+        //            readerSearch.Read();
+        //        }
+
+        //    }
+
+        //}
+
     }
 }

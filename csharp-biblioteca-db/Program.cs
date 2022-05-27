@@ -1,25 +1,31 @@
 ﻿using System;
 using System.Data.SqlClient;
+using System.Windows;
+
 namespace csharp_biblioteca_db
 {
     internal class Program
     {
         static void Main(string[] args)
         {
-//            string stringaDiConnessione =
-//"Data Source=localhost;Initial Catalog=biblioteca;Integrated Security=True;Pooling=False";
-//            using (SqlConnection conn = new SqlConnection(stringaDiConnessione))
-//            {
-//                conn.Open();
-//            }
+            //            string stringaDiConnessione =
+            //"Data Source=localhost;Initial Catalog=biblioteca;Integrated Security=True;Pooling=False";
+            //            using (SqlConnection conn = new SqlConnection(stringaDiConnessione))
+            //            {
+            //                conn.Open();
+            //            }
 
 
 
 
 
-
+            //MessageBox.Show("Errore");
 
             Biblioteca b = new Biblioteca("Civica");
+
+
+            string stringa = Console.ReadLine();
+            db.SearchByAutore(stringa);
 
             //b.AggiungiScaffale("SS1");
             //b.AggiungiScaffale("SS2");
@@ -53,6 +59,22 @@ namespace csharp_biblioteca_db
             
            
             b.AggiungiLibro(db.GetUniqueId(),titolo ,anno ,settore ,numeroPagine , scaffale, lAutoriLibro);
+
+
+            //inserimento DVD
+
+            Console.WriteLine("nome dvd");
+            string nomeDvd = Console.ReadLine();
+            Console.WriteLine("Inserisci anno pubblicazione del  DVD");
+            int annoDvd = Convert.ToInt32(Console.ReadLine());
+            Console.WriteLine("Inserisci la tipologia del DVD");
+            string settoreDvd = Console.ReadLine();
+            Console.WriteLine("Inserisci durata dvd");
+            int durata = Convert.ToInt32(Console.ReadLine());
+            Console.WriteLine("Scegli lo scaffale esempio: SS1,SS2,SS3");
+            string scaffaleDvd = Console.ReadLine();
+
+            b.AggiungiDVD(db.GetUniqueId(), nomeDvd, annoDvd, settoreDvd, durata, scaffaleDvd, lAutoriLibro);
            
 
 
