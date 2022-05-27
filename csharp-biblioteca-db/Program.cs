@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data.SqlClient;
 using System.Windows;
+using System.IO;
 
 namespace csharp_biblioteca_db
 {
@@ -14,6 +15,11 @@ namespace csharp_biblioteca_db
             //            {
             //                conn.Open();
             //            }
+           
+
+           
+
+
 
 
 
@@ -24,10 +30,45 @@ namespace csharp_biblioteca_db
             Biblioteca b = new Biblioteca("Civica");
 
 
+
+            //aggiunto al db  dei nomi cognomi e titoli di autore
+
+            //List<Autore> lAutoriProva = new List<Autore>();
+
+            //StreamReader reader = new StreamReader("elenco.txt");
+            //string linea;
+            //while ((linea = reader.ReadLine()) != null)
+            //{
+            //    //una linea è, ad esempio: giuseppe mazzini e altri autori:a carlo alberto di savoja
+            //    var vett = linea.Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
+            //    string s = vett[0];
+            //    var cn = s.Split(new char[] { ' ' });
+            //    string nome = cn[0];
+            //    string cognome = "";
+            //    try
+            //    {
+            //        cognome = s.Substring(cn[0].Length + 1);
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        Console.WriteLine(ex.Message);
+            //    }
+            //    string titolo = vett[1];
+            //    Console.WriteLine("Nome: {0}, Cognome: {1}, Titolo: {2}", nome, cognome, titolo);
+            //    string email = nome + "@email.it";
+            //    Autore AutoreMioLibro = new Autore(nome, cognome, email);
+            //    lAutoriProva.Add(AutoreMioLibro);
+            //    b.AggiungiLibro(db.GetUniqueId(), titolo,1800, "prova" ,200 , "SS1", lAutoriProva);
+            //}
+            //reader.Close();
+
+
             Console.WriteLine("Inserisci un opzione");
             Console.WriteLine("0-Aggiungi Autore  Libro");
             Console.WriteLine("1-Aggiungi Autore  dvd");
             Console.WriteLine("2-Stampa tutti i libri e autori");
+            Console.WriteLine("3-Cerca per nome e cognome");
+
 
 
 
@@ -92,13 +133,25 @@ namespace csharp_biblioteca_db
                     Console.WriteLine("Scegli lo scaffale esempio: SS1,SS2,SS3");
                     string scaffaleDvd = Console.ReadLine();
 
-                    b.AggiungiDVD(db.GetUniqueId(), nomeDvd, annoDvd, settoreDvd, durata, scaffaleDvd, lAutoriDVD);
+                    b.AggiungiDvd(db.GetUniqueId(), nomeDvd, annoDvd, settoreDvd, durata, scaffaleDvd, lAutoriDVD);
 
                     break;
 
 
                 case "2":
                     db.StampaLibriAutori();
+
+                    break;
+                case "3":
+                    Console.WriteLine("Inserire Nome autore da cercare");
+                    string nomeSearch = Console.ReadLine();
+                    Console.WriteLine("Inserire Cognome autore da cercare");
+                    string cognomeSearch = Console.ReadLine();
+
+                    var listaSearch = new List<List<string>>();
+                    listaSearch = db.SearchByAutore(nomeSearch, cognomeSearch);
+                    db.StampaLibriAutoriRicerca(listaSearch);
+
 
                     break;
 

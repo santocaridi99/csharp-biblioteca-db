@@ -43,15 +43,15 @@ namespace csharp_biblioteca_db
                 db.scaffaleAdd(nuovo.Numero);
         }
 
-        public void AggiungiLibro(long codice , string sTitolo , int iAnno , string sSettore , int  iDurata ,string sScaffale,List<Autore>listaAutori)
+        public void AggiungiDvd(long codice , string sTitolo , int iAnno , string sSettore , int  iDurata ,string sScaffale,List<Autore>listaAutori)
         {
             DVD mioDvd= new DVD(codice ,sTitolo ,iAnno ,sSettore , iDurata ,sScaffale);
             mioDvd.Stato = Stato.Disponibile;
             db.dvdAdd(mioDvd,listaAutori);
         }
-        public void AggiungiDVD(long codice, string sTitolo, int iAnno, string sSettore, int iDurata, string sScaffale, List<Autore> listaAutori)
+        public void AggiungiLibro(long codice, string sTitolo, int iAnno, string sSettore, int iNumeroPag, string sScaffale, List<Autore> listaAutori)
         {
-            Libro nuovoLibro = new Libro(codice, sTitolo, iAnno, sSettore, iDurata, sScaffale);
+            Libro nuovoLibro = new Libro(codice, sTitolo, iAnno, sSettore, iNumeroPag, sScaffale);
             nuovoLibro.Stato = Stato.Disponibile;
             db.libroAdd(nuovoLibro, listaAutori);
         }

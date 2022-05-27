@@ -165,17 +165,17 @@ namespace csharp_biblioteca_db
                             var numrows = insert.ExecuteNonQuery();
                             if (numrows != 1)
                             {
-                                doSql(conn, "rollback transaction");
-                                conn.Close();
-                                throw new System.Exception("Valore di ritorno errato seconda query");
+                                //doSql(conn, "rollback transaction");
+                                //conn.Close();
+                                //throw new System.Exception("Valore di ritorno errato seconda query");
                             }
                         }
                         catch (Exception ex)
                         {
-                            Console.WriteLine(ex.Message);
-                            doSql(conn, "rollback transaction");
-                            conn.Close();
-                            return 0;
+                            //Console.WriteLine(ex.Message);
+                            //doSql(conn, "rollback transaction");
+                            //conn.Close();
+                            //return 0;
                         }
                     }
 
@@ -188,17 +188,17 @@ namespace csharp_biblioteca_db
                         var numrows = insert.ExecuteNonQuery();
                         if (numrows != 1)
                         {
-                            doSql(conn, "rollback transaction");
-                            conn.Close();
-                            throw new System.Exception("Valore di ritorno errato seconda query");
+                            //doSql(conn, "rollback transaction");
+                            //conn.Close();
+                            //throw new System.Exception("Valore di ritorno errato seconda query");
                         }
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine(ex.Message);
-                        doSql(conn, "rollback transaction");
-                        conn.Close();
-                        return 0;
+                    //    Console.WriteLine(ex.Message);
+                    //    doSql(conn, "rollback transaction");
+                    //    conn.Close();
+                        //return 0;
                     }
                 }
             }
@@ -375,7 +375,7 @@ namespace csharp_biblioteca_db
                 }
                 if (iInsertFlag == 1)
                 {
-                    string cmd4 = String.Format("INSERT INTO AUTORI (codice,Nome,Cognome,mail) values({0},'{1}','{2}','{3}')", lCodiceAutore, autore.Nome, autore.Cognome, autore.sMail); ;
+                    string cmd4 = String.Format("INSERT INTO AUTORI (codice,Nome,Cognome,mail) values({0},'{1}','{2}','{3}')", lCodiceAutore, autore.Nome, autore.Cognome, autore.sMail);
                     using (SqlCommand insert = new SqlCommand(cmd4, conn))
                     {
                         try
@@ -427,21 +427,54 @@ namespace csharp_biblioteca_db
         }
 
 
-        //internal static void SearchByAutore(string search)
-        //{
+        internal static List<List<string>> SearchByAutore(string nome, string cognome)
+        {
+            var data = new List<List<string>>();
+            var conn = Connect();
+            if (conn == null)
+                throw new Exception("Unable to connect to the dabatase");
 
-        //    var cmd = String.Format("select nome,cognome,mail from Autori where Nome like '{0}'", search);
-        //    using (SqlCommand select = new SqlCommand(cmd, conn))
-        //    {
-        //        using (SqlDataReader reader = select.ExecuteReader())
-        //        {
-        //            var readerSearch = select.ExecuteReader();
-        //            readerSearch.Read();
-        //        }
+            var cmd = String.Format(@"select * from Libro inner join DOCUMENTI on Libro.codice = DOCUMENTI.codice inner join AUTORI_DOCUMENTI 
+                                     on DOCUMENTI.codice = AUTORI_DOCUMENTI.codice_documento inner join AUTORI 
+                                        on AUTORI_DOCUMENTI.codice_autore = Autori.codice
+                                        where Autori.Nome = '{0}' and Autori.Cognome = '{1}'", nome, cognome);
+            using (SqlCommand select = new SqlCommand(cmd, conn))
+            {
+                using (SqlDataReader reader = select.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
 
-        //    }
+                        var ls = new List<string>();
 
-        //}
+                        ls.Add(reader.GetInt64(0).ToString());
+                        ls.Add(reader.GetInt32(1).ToString());
+                        ls.Add(reader.GetInt64(2).ToString());
+                        ls.Add(reader.GetString(3));
+                        ls.Add(reader.GetString(4));
+                        ls.Add(reader.GetString(5));
+                        ls.Add(reader.GetString(6));
+                        ls.Add(reader.GetString(7));
+                        ls.Add(reader.GetInt64(8).ToString());
+                        ls.Add(reader.GetInt64(9).ToString());
+                        ls.Add(reader.GetInt64(10).ToString());
+                        ls.Add(reader.GetString(11));
+                        ls.Add(reader.GetString(12));
+                        ls.Add(reader.GetString(13));
+
+
+
+                        data.Add(ls);
+                    }
+
+
+                }
+
+
+            }
+            conn.Close();
+            return data;
+        }
 
         //metodo per prendere tutti i libri e autori
         internal static List<List<string>> getLibriAutori()
@@ -518,6 +551,28 @@ namespace csharp_biblioteca_db
             }
 
         }
+        internal static void StampaLibriAutoriRicerca(List<List<string>> list)
+        {
+
+            if (list.Count == 0)
+            {
+                Console.WriteLine("Nessun Elemento presente");
+            }
+
+            foreach (var item in list)
+            {
+
+                Console.WriteLine(string.Format(@"Codice Libro: {0},Numero Pagine: {1},Titolo: {2}, Settore: {3}, 
+                        Stato:{4}, Scaffale {5}, Codice Autore {6}, Nome Autore {7}, Cognome Autore {8}, Mail Autore {9} ",
+                    item[0], item[1], item[3], item[4], item[5], item[7], item[8], item[11], item[12], item[13]));
+
+
+            }
+
+        }
+
+
 
     }
+
 }
