@@ -67,22 +67,6 @@ namespace csharp_biblioteca_db
 
         }
 
-        //metodo : implementare una select che selezioni tutti i libri e gli autori
-        //usando un join
-
-        //internal static List<List<string>> getLibriAutori()
-        //{
-        //    var conn = Connect();
-        //    if(conn == null)
-        //    {
-        //        throw new Exception("Unable to connect to the database");
-        //    }
-        //    var cmd = String.Format(@"sekect * from DOCUMENTI inner join Libro on DOCUMENTI.codice = libro.codice
-        //    inner join AUTORI_DOCUMENTI on DOCUMENTI.codice = AUTORI_DOCUMENTI.codice_documento
-        //    inner join AUTORI on AUTORI_DOCUMENTI.codice_autore = AUTORI.codice");
-
-
-        //} 
 
         
 
@@ -445,17 +429,8 @@ namespace csharp_biblioteca_db
 
         //internal static void SearchByAutore(string search)
         //{
-        //    //devo collegarmi e inviare un comando di insert del nuovo scaffale
-        //    var conn = Connect();
-        //    if (conn == null)
-        //    {
-        //        throw new System.Exception("Unable to connect to database");
-        //    }
-        //    var ok = doSql(conn, "begin transaction \n");
-        //    if (!ok)
-        //        throw new System.Exception("Errore in begin transaction");
 
-        //    var cmd = String.Format("select nome,cognome,mail from Autori where Nome like '{0}'",search);
+        //    var cmd = String.Format("select nome,cognome,mail from Autori where Nome like '{0}'", search);
         //    using (SqlCommand select = new SqlCommand(cmd, conn))
         //    {
         //        using (SqlDataReader reader = select.ExecuteReader())
@@ -467,6 +442,82 @@ namespace csharp_biblioteca_db
         //    }
 
         //}
+
+        //metodo per prendere tutti i libri e autori
+        internal static List<List<string>> getLibriAutori()
+        {
+            var data = new List<List<string>>();
+
+            var conn = Connect();
+            if (conn == null)
+                throw new Exception("Unable to connect to the dabatase");
+
+            var cmd = String.Format(@"select * from Libro inner join DOCUMENTI on Libro.codice = DOCUMENTI.codice inner join AUTORI_DOCUMENTI 
+                                     on DOCUMENTI.codice = AUTORI_DOCUMENTI.codice_documento inner join AUTORI 
+                                        on AUTORI_DOCUMENTI.codice_autore = AUTORI.codice");
+
+
+            using (SqlCommand select = new SqlCommand(cmd, conn))
+            {
+                using (SqlDataReader reader = select.ExecuteReader())
+
+                {
+
+
+                    while (reader.Read())
+                    {
+
+                        var ls = new List<string>();
+
+                        ls.Add(reader.GetInt64(0).ToString());
+                        ls.Add(reader.GetInt32(1).ToString());
+                        ls.Add(reader.GetInt64(2).ToString());
+                        ls.Add(reader.GetString(3));
+                        ls.Add(reader.GetString(4));
+                        ls.Add(reader.GetString(5));
+                        ls.Add(reader.GetString(6));
+                        ls.Add(reader.GetString(7));
+                        ls.Add(reader.GetInt64(8).ToString());
+                        ls.Add(reader.GetInt64(9).ToString());
+                        ls.Add(reader.GetInt64(10).ToString());
+                        ls.Add(reader.GetString(11));
+                        ls.Add(reader.GetString(12));
+                        ls.Add(reader.GetString(13));
+
+
+
+                        data.Add(ls);
+
+                    }
+
+                }
+            }
+
+            conn.Close();
+
+
+            return data;
+
+        }
+
+
+        internal static void StampaLibriAutori()
+        {
+
+            var dati = new List<List<string>>();
+            dati = getLibriAutori();
+
+            foreach (var item in dati)
+            {
+
+                Console.WriteLine(string.Format(@"Codice Libro: {0},Numero Pagine: {1},Titolo: {2},Settore: {3}, 
+                        Stato:{4}, Scaffale {5}, Codice Autore {6}, Nome Autore {7}, Cognome Autore {8}, Mail Autore {9} ",
+                    item[0], item[1], item[3], item[4], item[5], item[7], item[8], item[11], item[12], item[13]));
+
+
+            }
+
+        }
 
     }
 }

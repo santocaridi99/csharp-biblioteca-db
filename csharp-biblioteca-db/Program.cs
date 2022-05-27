@@ -24,59 +24,94 @@ namespace csharp_biblioteca_db
             Biblioteca b = new Biblioteca("Civica");
 
 
-            string stringa = Console.ReadLine();
-            db.SearchByAutore(stringa);
+            Console.WriteLine("Inserisci un opzione");
+            Console.WriteLine("0-Aggiungi Autore  Libro");
+            Console.WriteLine("1-Aggiungi Autore  dvd");
+            Console.WriteLine("2-Stampa tutti i libri e autori");
+
+
 
             //b.AggiungiScaffale("SS1");
             //b.AggiungiScaffale("SS2");
             //b.AggiungiScaffale("SS3");
 
-            Console.WriteLine("Nuovo Libro");
-            Console.WriteLine("nome dell'autore");
-            string nomeAutore = Console.ReadLine();
-            Console.WriteLine("cognome autore");
-            string cognomeAutore = Console.ReadLine();
-            Console.WriteLine("mail");
-            string mailAutore = Console.ReadLine();
+            switch (Console.ReadLine())
+            {
+                case "0":
+                    Console.WriteLine("Nuovo Libro");
+                    Console.WriteLine("nome dell'autore");
+                    string nomeAutore = Console.ReadLine();
+                    Console.WriteLine("cognome autore");
+                    string cognomeAutore = Console.ReadLine();
+                    Console.WriteLine("mail");
+                    string mailAutore = Console.ReadLine();
 
-            List<Autore> lAutoriLibro = new List<Autore>();
-            Autore AutoreMioLibro = new Autore(nomeAutore, cognomeAutore, mailAutore);
-            lAutoriLibro.Add(AutoreMioLibro);
+                    List<Autore> lAutoriLibro = new List<Autore>();
+                    Autore AutoreMioLibro = new Autore(nomeAutore, cognomeAutore, mailAutore);
+                    lAutoriLibro.Add(AutoreMioLibro);
+
+                    Console.WriteLine("titolo del libro");
+                    string titolo = Console.ReadLine();
+                    Console.WriteLine("Inserisci anno pubblicazione del  libro");
+                    int anno = Convert.ToInt32(Console.ReadLine());
+                    Console.WriteLine("Inserisci la tipologia del libro");
+                    string settore = Console.ReadLine();
+                    Console.WriteLine("Inserisci il numero di pagine del libro");
+                    int numeroPagine = Convert.ToInt32(Console.ReadLine());
+                    Console.WriteLine("Scegli lo scaffale esempio: SS1,SS2,SS3");
+                    string scaffale = Console.ReadLine();
+
+                    b.AggiungiLibro(db.GetUniqueId(), titolo, anno, settore, numeroPagine, scaffale, lAutoriLibro);
 
 
-            Console.WriteLine("titolo del libro");
-            string titolo = Console.ReadLine();
-            Console.WriteLine("Inserisci anno pubblicazione del  libro");
-            int anno = Convert.ToInt32(Console.ReadLine());
-            Console.WriteLine("Inserisci la tipologia del libro");
-            string settore = Console.ReadLine();
-            Console.WriteLine("Inserisci il numero di pagine del libro");
-            int numeroPagine = Convert.ToInt32(Console.ReadLine());
-            Console.WriteLine("Scegli lo scaffale esempio: SS1,SS2,SS3");
-            string scaffale = Console.ReadLine();
 
-            
-            
+                    break;
+                case "1":
+                    Console.WriteLine("Nuovo Libro");
+                    Console.WriteLine("nome dell'autore");
+                    string nomeAutore2 = Console.ReadLine();
+                    Console.WriteLine("cognome autore");
+                    string cognomeAutore2 = Console.ReadLine();
+                    Console.WriteLine("mail");
+                    string mailAutore2 = Console.ReadLine();
+
+                    List<Autore> lAutoriDVD = new List<Autore>();
+                    Autore AutoreMioDVD = new Autore(nomeAutore2, cognomeAutore2, mailAutore2);
+                    lAutoriDVD.Add(AutoreMioDVD);
+
+                    //inserimento DVD
+
+                    Console.WriteLine("nome dvd");
+                    string nomeDvd = Console.ReadLine();
+                    Console.WriteLine("Inserisci anno pubblicazione del  DVD");
+                    int annoDvd = Convert.ToInt32(Console.ReadLine());
+                    Console.WriteLine("Inserisci la tipologia del DVD");
+                    string settoreDvd = Console.ReadLine();
+                    Console.WriteLine("Inserisci durata dvd");
+                    int durata = Convert.ToInt32(Console.ReadLine());
+                    Console.WriteLine("Scegli lo scaffale esempio: SS1,SS2,SS3");
+                    string scaffaleDvd = Console.ReadLine();
+
+                    b.AggiungiDVD(db.GetUniqueId(), nomeDvd, annoDvd, settoreDvd, durata, scaffaleDvd, lAutoriDVD);
+
+                    break;
+
+
+                case "2":
+                    db.StampaLibriAutori();
+
+                    break;
+
+                default:
+                    Console.WriteLine("Non è un opzione disponibile");
+                    break;
+            }
+
+
            
-            b.AggiungiLibro(db.GetUniqueId(),titolo ,anno ,settore ,numeroPagine , scaffale, lAutoriLibro);
 
 
-            //inserimento DVD
-
-            Console.WriteLine("nome dvd");
-            string nomeDvd = Console.ReadLine();
-            Console.WriteLine("Inserisci anno pubblicazione del  DVD");
-            int annoDvd = Convert.ToInt32(Console.ReadLine());
-            Console.WriteLine("Inserisci la tipologia del DVD");
-            string settoreDvd = Console.ReadLine();
-            Console.WriteLine("Inserisci durata dvd");
-            int durata = Convert.ToInt32(Console.ReadLine());
-            Console.WriteLine("Scegli lo scaffale esempio: SS1,SS2,SS3");
-            string scaffaleDvd = Console.ReadLine();
-
-            b.AggiungiDVD(db.GetUniqueId(), nomeDvd, annoDvd, settoreDvd, durata, scaffaleDvd, lAutoriLibro);
-           
-
+         
 
 
 
